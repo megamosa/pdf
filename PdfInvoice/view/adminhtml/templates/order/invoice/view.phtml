@@ -1,0 +1,32 @@
+<?php
+/**
+ * @var $block \MagoArab\PdfInvoice\Block\Order\PrintInvoice
+ */
+$invoice = $block->getInvoice();
+$order = $invoice->getOrder();
+?>
+<div class="invoice-view" dir="rtl">
+    <div class="invoice-header">
+        <div class="invoice-info">
+            <h1><?= $block->escapeHtml(__('Invoice')) ?></h1>
+            <p><strong><?= $block->escapeHtml(__('Invoice #:')) ?></strong> <?= $block->escapeHtml($invoice->getIncrementId()) ?></p>
+            <p><strong><?= $block->escapeHtml(__('Order #:')) ?></strong> <?= $block->escapeHtml($order->getIncrementId()) ?></p>
+            <p><strong><?= $block->escapeHtml(__('Order Date:')) ?></strong> <?= $block->escapeHtml($block->formatDate($order->getCreatedAt(), \IntlDateFormatter::MEDIUM, true)) ?></p>
+        </div>
+    </div>
+    
+    <div class="address-info">
+        <div class="billing-address">
+            <h3><?= $block->escapeHtml(__('Billing Address')) ?></h3>
+            <?= $block->getChildHtml('billing_address') ?: $block->escapeHtml($order->getBillingAddress()->format('html')) ?>
+        </div>
+        <?php if (!$order->getIsVirtual()): ?>
+        <div class="shipping-address">
+            <h3><?= $block->escapeHtml(__('Shipping Address')) ?></h3>
+            <?= $block->getChildHtml('shipping_address') ?: $block->escapeHtml($order->getShippingAddress()->format('html')) ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    
+    <!-- Rest of the template is similar to frontend/templates/order/invoice/print.phtml -->
+</div>

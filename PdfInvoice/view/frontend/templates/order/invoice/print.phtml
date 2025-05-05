@@ -1,0 +1,163 @@
+<?php
+/**
+ * @var $block \MagoArab\PdfInvoice\Block\Order\PrintInvoice
+ */
+$invoice = $block->getInvoice();
+$order = $invoice->getOrder();
+?>
+<div class="invoice-print" dir="rtl">
+    <div class="invoice-header">
+        <div class="logo">
+            <img src="<?= $block->escapeUrl($block->getViewFileUrl('images/logo.png')) ?>" alt="<?= $block->escapeHtmlAttr(__('Logo')) ?>" />
+        </div>
+        <div class="invoice-info">
+            <h1><?= $block->escapeHtml(__('Invoice')) ?></h1>
+            <p><strong><?= $block->escapeHtml(__('Invoice #:')) ?></strong> <?= $block->escapeHtml($invoice->getIncrementId()) ?></p>
+            <p><strong><?= $block->escapeHtml(__('Order #:')) ?></strong> <?= $block->escapeHtml($order->getIncrementId()) ?></p>
+            <p><strong><?= $block->escapeHtml(__('Order Date:')) ?></strong> <?= $block->escapeHtml($block->formatDate($order->getCreatedAt(), \IntlDateFormatter::MEDIUM, true)) ?></p>
+        </div>
+    </div>
+    
+    <div class="address-info">
+        <div class="billing-address">
+            <h3><?= $block->escapeHtml(__('Billing Address')) ?></h3>
+            <?= $block->getChildHtml('billing_address') ?: $block->escapeHtml($order->getBillingAddress()->format('html')) ?>
+        </div>
+        <?php if (!$order->getIsVirtual()): ?>
+        <div class="shipping-address">
+            <h3><?= $block->escapeHtml(__('Shipping Address')) ?></h3>
+            <?= $block->getChildHtml('shipping_address') ?: $block->escapeHtml($order->getShippingAddress()->format('html')) ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="payment-method">
+        <h3><?= $block->escapeHtml(__('Payment Method')) ?></h3>
+        <?= $block->getChildHtml('payment_info') ?: $block->escapeHtml($order->getPayment()->getMethodInstance()->getTitle()) ?>
+    </div>
+    
+    <?php if (!$order->getIsVirtual()): ?>
+    <div class="shipping-method">
+        <h3><?= $block->escapeHtml(__('Shipping Method')) ?></h3>
+        <?= $block->escapeHtml($order->getShippingDescription()) ?>
+    </div>
+    <?php endif; ?>
+    
+    <div class="items">
+        <h3><?= $block->escapeHtml(__('Items Ordered')) ?></h3>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th><?= $block->escapeHtml(__('Product Name')) ?></th>
+                    <th><?= $block->escapeHtml(__('SKU')) ?></th>
+                    <th class="text-right"><?= $block->escapeHtml(__('Price')) ?></th>
+                    <th class="text-center"><?= $block->escapeHtml(__('Qty')) ?></th>
+                    <th class="text-right"><?= $block->escapeHtml(__('Subtotal')) ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($invoice->getAllItems() as $item): ?>
+                    <?php if (!$item->getOrderItem()->getParentItem()): ?>
+                    <tr>
+                        <td><?= $block->escapeHtml($item->getName()) ?></td>
+                        <td><?= $block->escapeHtml($item->getSku()) ?></td>
+                        <td class="text-right"><?= $block->formatPrice($item->getPrice()) ?></td>
+                        <td class="text-center"><?= (float)$item->getQty() ?></td>
+                        <td class="text-right"><?= $block->formatPrice($item->getRowTotal()) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="totals">
+        <table class="totals-table">
+            <tr>
+                <th><?= $block->escapeHtml(__('Subtotal')) ?></th>
+                <td><?= $block->formatPrice($invoice->getSubtotal()) ?></td>
+            </tr>
+            <?php if ((float)$invoice->getDiscountAmount()): ?>
+            <tr>
+                <th><?= $block->escapeHtml(__('Discount')) ?></th>
+                <td><?= $block->formatPrice($invoice->getDiscountAmount()) ?></td>
+            </tr>
+            <?php endif; ?>
+            <?php if ((float)$invoice->getTaxAmount()): ?>
+            <tr>
+                <th><?= $block->escapeHtml(__('Tax')) ?></th>
+                <td><?= $block->formatPrice($invoice->getTaxAmount()) ?></td>
+            </tr>
+            <?php endif; ?>
+            <?php if ((float)$invoice->getShippingAmount()): ?>
+            <tr>
+                <th><?= $block->escapeHtml(__('Shipping & Handling')) ?></th>
+                <td><?= $block->formatPrice($invoice->getShippingAmount()) ?></td>
+            </tr>
+            <?php endif; ?>
+            <tr class="grand-total">
+                <th><?= $block->escapeHtml(__('Grand Total')) ?></th>
+                <td><?= $block->formatPrice($invoice->getGrandTotal()) ?></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="footer">
+        <p><?= $block->escapeHtml(__('Thank you for your purchase!')) ?></p>
+    </div>
+</div>
+
+<style>
+    /* Styling for the invoice print */
+    .invoice-print {
+        font-family: 'aealarabiya', Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        direction: rtl;
+    }
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+    .invoice-info h1 {
+        margin-top: 0;
+    }
+    .address-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .billing-address, .shipping-address {
+        width: 48%;
+    }
+    .items-table, .totals-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .items-table th, .items-table td, .totals-table th, .totals-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    .items-table th {
+        background-color: #f2f2f2;
+    }
+    .text-right {
+        text-align: left;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .totals-table {
+        width: 50%;
+        margin-left: auto;
+    }
+    .grand-total {
+        font-weight: bold;
+    }
+    .footer {
+        margin-top: 30px;
+        text-align: center;
+    }
+</style>

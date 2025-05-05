@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="sales_order_invoice_renderers"/>
+    <update handle="sales_order_item_price"/>
+    <update handle="print"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="MagoArab\PdfInvoice\Block\Order\PrintInvoice" name="sales.order.print.invoice" template="MagoArab_PdfInvoice::order/invoice/print.phtml">
+                <block class="Magento\Sales\Block\Order\Invoice\Totals" name="invoice_totals" template="Magento_Sales::order/totals.phtml">
+                    <arguments>
+                        <argument name="label_properties" xsi:type="string">colspan="4" class="mark"</argument>
+                        <argument name="value_properties" xsi:type="string">class="amount"</argument>
+                    </arguments>
+                    <block class="Magento\Tax\Block\Sales\Order\Tax" name="tax" template="Magento_Tax::order/tax.phtml"/>
+                </block>
+                <block class="Magento\Sales\Block\Order\Invoice\Items" name="invoice_items" template="Magento_Sales::order/invoice/items.phtml">
+                    <arguments>
+                        <argument name="columns" xsi:type="array">
+                            <item name="product" xsi:type="string" translate="true">Product Name</item>
+                            <item name="sku" xsi:type="string" translate="true">SKU</item>
+                            <item name="price" xsi:type="string" translate="true">Price</item>
+                            <item name="qty" xsi:type="string" translate="true">Qty Invoiced</item>
+                            <item name="subtotal" xsi:type="string" translate="true">Subtotal</item>
+                        </argument>
+                    </arguments>
+                    <block class="Magento\Sales\Block\Order\Item\Renderer\DefaultRenderer" name="item_renderer.default" as="default" template="Magento_Sales::order/invoice/items/renderer/default.phtml"/>
+                    <block class="Magento\Sales\Block\Order\Item\Renderer\DefaultRenderer" name="item_renderer.configured" as="configured" template="Magento_Sales::order/invoice/items/renderer/default.phtml"/>
+                    <block class="Magento\Sales\Block\Order\Invoice\Totals" name="totals" template="Magento_Sales::order/totals.phtml">
+                        <arguments>
+                            <argument name="label_properties" xsi:type="string">colspan="4" class="mark"</argument>
+                            <argument name="value_properties" xsi:type="string">class="amount"</argument>
+                        </arguments>
+                        <block class="Magento\Tax\Block\Sales\Order\Tax" name="tax" template="Magento_Tax::order/tax.phtml"/>
+                    </block>
+                </block>
+                <block class="Magento\Framework\View\Element\Template" name="invoice_comments" template="Magento_Sales::order/comments.phtml">
+                    <arguments>
+                        <argument name="title" xsi:type="string" translate="true">Invoice Comments</argument>
+                        <argument name="model" xsi:type="object">Magento\Sales\Model\ResourceModel\Order\Invoice\Comment\Collection</argument>
+                    </arguments>
+                </block>
+            </block>
+        </referenceContainer>
+    </body>
+</page>
